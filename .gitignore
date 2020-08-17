@@ -1,3 +1,6 @@
+# the build artifact
+coffee-roulette
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
