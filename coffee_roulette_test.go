@@ -173,8 +173,62 @@ func TestAddToHistory(t *testing.T) {
 				},
 			},
 		},
-		// some history empty result
-		// some history some result
+		//
+		{
+			name: "some history empty result",
+			history: map[string]map[string]time.Time{
+				"a": {
+					"b": now,
+				},
+				"b": {
+					"a": now,
+				},
+			},
+			result: make(map[string]string),
+			now:    now,
+			expected: map[string]map[string]time.Time{
+				"a": {
+					"b": now,
+				},
+				"b": {
+					"a": now,
+				},
+			},
+		},
+		{
+			name: "some history some result",
+			history: map[string]map[string]time.Time{
+				"a": {
+					"b": now,
+					"c": now,
+				},
+				"b": {
+					"a": now,
+				},
+				"c": {
+					"a": now,
+				},
+			},
+			result: map[string]string{
+				"b": "c",
+				"c": "b",
+			},
+			now: now,
+			expected: map[string]map[string]time.Time{
+				"a": {
+					"b": now,
+					"c": now,
+				},
+				"b": {
+					"a": now,
+					"c": now,
+				},
+				"c": {
+					"a": now,
+					"b": now,
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
