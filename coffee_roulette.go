@@ -100,5 +100,20 @@ func QuickMatch(people []string) ([]map[string]string, error) {
 	return matches, nil
 }
 
+// AddToHistory given the existing history and a the results from Match, it will combine them into a new history
+func AddToHistory(history map[string]map[string]time.Time, result map[string]string, now time.Time) map[string]map[string]time.Time {
+	for key, val := range result {
+		keyHist, ok := history[key]
+		if !ok {
+			keyHist = make(map[string]time.Time)
+			history[key] = keyHist
+		}
+		keyHist[val] = now
+	}
+
+	return history
+}
+
 func main() {
+	fmt.Println("coffee roulette!")
 }

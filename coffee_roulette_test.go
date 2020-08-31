@@ -132,3 +132,56 @@ func TestQuickMatch(t *testing.T) {
 		})
 	}
 }
+
+func TestAddToHistory(t *testing.T) {
+	now := time.Now()
+	tests := []struct {
+		name     string
+		history  map[string]map[string]time.Time
+		result   map[string]string
+		now      time.Time
+		expected map[string]map[string]time.Time
+	}{
+		{
+			name:     "nil",
+			history:  nil,
+			result:   nil,
+			now:      now,
+			expected: nil,
+		},
+		{
+			name:     "empty history empty result",
+			history:  make(map[string]map[string]time.Time),
+			result:   make(map[string]string),
+			now:      now,
+			expected: make(map[string]map[string]time.Time),
+		},
+		{
+			name:    "empty history some result",
+			history: make(map[string]map[string]time.Time),
+			result: map[string]string{
+				"a": "b",
+				"b": "a",
+			},
+			now: now,
+			expected: map[string]map[string]time.Time{
+				"a": {
+					"b": now,
+				},
+				"b": {
+					"a": now,
+				},
+			},
+		},
+		// some history empty result
+		// some history some result
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := AddToHistory(test.history, test.result, test.now)
+			assert.Equal(t, test.expected, actual)
+			assert.Equal(t, test.expected, test.history)
+		})
+	}
+}
