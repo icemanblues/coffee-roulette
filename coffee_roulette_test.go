@@ -2,9 +2,70 @@ package main
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestMatch(t *testing.T) {
+	tests := []struct {
+		name     string
+		people   []string
+		history  map[string]map[string]time.Time
+		expected map[string]string
+		err      error
+	}{
+		{
+			name:     "odd",
+			people:   []string{"odd"},
+			history:  make(map[string]map[string]time.Time),
+			expected: nil,
+			err:      oddError(1),
+		},
+		{
+			name:     "empty",
+			people:   []string{},
+			history:  make(map[string]map[string]time.Time),
+			expected: make(map[string]string),
+			err:      nil,
+		},
+		{
+			name:    "4 people no history",
+			people:  []string{"a", "b", "c", "d"},
+			history: make(map[string]map[string]time.Time),
+			expected: map[string]string{
+				"a": "b",
+				"b": "a",
+				"c": "d",
+				"d": "c",
+			},
+			err: nil,
+		},
+		{
+			name:   "no solution possible",
+			people: []string{"a", "b"},
+			history: map[string]map[string]time.Time{
+				"a": {
+					"b": time.Now(),
+				},
+				"b": {
+					"a": time.Now(),
+				},
+			},
+			expected: nil,
+			err:      ErrNoSolution,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := make(map[string]string)
+			act, err := Match(test.people, test.history, result)
+			assert.Equal(t, test.expected, act)
+			assert.Equal(t, test.err, err)
+		})
+	}
+}
 
 func TestQuickMatch(t *testing.T) {
 	tests := []struct {
