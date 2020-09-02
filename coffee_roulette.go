@@ -1,9 +1,15 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
+
+type History map[string]map[string]time.Time
 
 func oddError(n int) error {
 	return fmt.Errorf("Must have an even number of people. You have %d", n)
@@ -14,6 +20,33 @@ const Blank string = ""
 
 // ErrNoSolution error when there is no solution given the constraints
 var ErrNoSolution error = fmt.Errorf("No Solution Possible")
+
+// ReadHistory reads the history from a file on the filesystem
+func ReadHistory(filename string) (map[string]map[string]time.Time, error) {
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	var history map[string]map[string]time.Time
+	yaml.Unmarshal(bytes, &history)
+	return history, nil
+}
+
+// WriteHistory writes the history to a file on the filesystem
+func WriteHistory(filename string, history History) error {
+	bytes, err := yaml.Marshal(history)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(filename, bytes, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // Match will pair individuals from so that they are not paired with them selves
 // and not with someone that they have been paired with previously
@@ -102,6 +135,10 @@ func QuickMatch(people []string) ([]map[string]string, error) {
 
 // AddToHistory given the existing history and a the results from Match, it will combine them into a new history
 func AddToHistory(history map[string]map[string]time.Time, result map[string]string, now time.Time) map[string]map[string]time.Time {
+	if history == nil {
+		history = make(map[string]map[string]time.Time)
+	}
+
 	for key, val := range result {
 		keyHist, ok := history[key]
 		if !ok {
@@ -116,4 +153,34 @@ func AddToHistory(history map[string]map[string]time.Time, result map[string]str
 
 func main() {
 	fmt.Println("coffee roulette!")
+	peopleFilename := flag.String("people", "", "the people file")
+	histFilename := flag.String("history", "", "the history file")
+	flag.Parse()
+
+	if *peopleFilename == "" {
+		// panic("you must supply a people file")
+		flag.Usage()
+		return
+	}
+
+	if *histFilename == "" {
+		// panic("you must supply a history file")
+		flag.Usage()
+		return
+	}
+
+	people := []string{"a", "b", "c", "d"}
+	history, err := ReadHistory(*histFilename)
+	if err != nil {
+		panic(err)
+	}
+
+	result := make(map[string]string)
+	answer, err := Match(people, history, result)
+	if err != nil {
+		fmt.Println("Unable to solve")
+	}
+
+	history = AddToHistory(history, answer, time.Now())
+	WriteHistory("a.out.yml", history)
 }
