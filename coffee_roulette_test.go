@@ -11,28 +11,28 @@ func TestMatch(t *testing.T) {
 	tests := []struct {
 		name     string
 		people   []string
-		history  map[string]map[string]time.Time
+		history  History
 		expected map[string]string
 		err      error
 	}{
 		{
 			name:     "odd",
 			people:   []string{"odd"},
-			history:  make(map[string]map[string]time.Time),
+			history:  make(History),
 			expected: nil,
 			err:      oddError(1),
 		},
 		{
 			name:     "empty",
 			people:   []string{},
-			history:  make(map[string]map[string]time.Time),
+			history:  make(History),
 			expected: make(map[string]string),
 			err:      nil,
 		},
 		{
 			name:    "4 people no history",
 			people:  []string{"a", "b", "c", "d"},
-			history: make(map[string]map[string]time.Time),
+			history: make(History),
 			expected: map[string]string{
 				"a": "b",
 				"b": "a",
@@ -44,7 +44,7 @@ func TestMatch(t *testing.T) {
 		{
 			name:   "no solution possible",
 			people: []string{"a", "b"},
-			history: map[string]map[string]time.Time{
+			history: History{
 				"a": {
 					"b": time.Now(),
 				},
@@ -137,10 +137,10 @@ func TestAddToHistory(t *testing.T) {
 	now := time.Now()
 	tests := []struct {
 		name     string
-		history  map[string]map[string]time.Time
+		history  History
 		result   map[string]string
 		now      time.Time
-		expected map[string]map[string]time.Time
+		expected History
 	}{
 		{
 			name:     "nil",
@@ -151,20 +151,20 @@ func TestAddToHistory(t *testing.T) {
 		},
 		{
 			name:     "empty history empty result",
-			history:  make(map[string]map[string]time.Time),
+			history:  make(History),
 			result:   make(map[string]string),
 			now:      now,
-			expected: make(map[string]map[string]time.Time),
+			expected: make(History),
 		},
 		{
 			name:    "empty history some result",
-			history: make(map[string]map[string]time.Time),
+			history: make(History),
 			result: map[string]string{
 				"a": "b",
 				"b": "a",
 			},
 			now: now,
-			expected: map[string]map[string]time.Time{
+			expected: History{
 				"a": {
 					"b": now,
 				},
@@ -176,7 +176,7 @@ func TestAddToHistory(t *testing.T) {
 		//
 		{
 			name: "some history empty result",
-			history: map[string]map[string]time.Time{
+			history: History{
 				"a": {
 					"b": now,
 				},
@@ -186,7 +186,7 @@ func TestAddToHistory(t *testing.T) {
 			},
 			result: make(map[string]string),
 			now:    now,
-			expected: map[string]map[string]time.Time{
+			expected: History{
 				"a": {
 					"b": now,
 				},
@@ -197,7 +197,7 @@ func TestAddToHistory(t *testing.T) {
 		},
 		{
 			name: "some history some result",
-			history: map[string]map[string]time.Time{
+			history: History{
 				"a": {
 					"b": now,
 					"c": now,
@@ -214,7 +214,7 @@ func TestAddToHistory(t *testing.T) {
 				"c": "b",
 			},
 			now: now,
-			expected: map[string]map[string]time.Time{
+			expected: History{
 				"a": {
 					"b": now,
 					"c": now,

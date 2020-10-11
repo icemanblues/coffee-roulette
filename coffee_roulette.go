@@ -22,13 +22,13 @@ const Blank string = ""
 var ErrNoSolution error = fmt.Errorf("No Solution Possible")
 
 // ReadHistory reads the history from a file on the filesystem
-func ReadHistory(filename string) (map[string]map[string]time.Time, error) {
+func ReadHistory(filename string) (History, error) {
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	var history map[string]map[string]time.Time
+	var history History
 	yaml.Unmarshal(bytes, &history)
 	return history, nil
 }
@@ -50,7 +50,7 @@ func WriteHistory(filename string, history History) error {
 
 // Match will pair individuals from so that they are not paired with them selves
 // and not with someone that they have been paired with previously
-func Match(people []string, history map[string]map[string]time.Time, result map[string]string) (map[string]string, error) {
+func Match(people []string, history History, result map[string]string) (map[string]string, error) {
 	// do we have a valid solution?
 	if len(people) == len(result) {
 		return result, nil
@@ -134,11 +134,7 @@ func QuickMatch(people []string) ([]map[string]string, error) {
 }
 
 // AddToHistory given the existing history and a the results from Match, it will combine them into a new history
-func AddToHistory(history map[string]map[string]time.Time, result map[string]string, now time.Time) map[string]map[string]time.Time {
-	if history == nil {
-		history = make(map[string]map[string]time.Time)
-	}
-
+func AddToHistory(history History, result map[string]string, now time.Time) History {
 	for key, val := range result {
 		keyHist, ok := history[key]
 		if !ok {
