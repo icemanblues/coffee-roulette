@@ -1,4 +1,4 @@
-package main
+package coffee_roulette
 
 import (
 	"testing"

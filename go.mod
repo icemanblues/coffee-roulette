@@ -1,4 +1,4 @@
-module github.com/icemanblues/coffee-roulette
+module github.com/icemanblues/coffee_roulette
 
 go 1.14
 
